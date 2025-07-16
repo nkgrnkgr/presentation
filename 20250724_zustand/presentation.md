@@ -11,22 +11,103 @@ footer: '2025/07/24 - Offers Tech Event'
 # Zustandを用いた実践的状態管理
 ## 複雑なフォームへの適用事例
 
-**発表者情報**
-AI在庫（カケハシ）のロゴ
+---
+
+![bg right:50%](https://avatars.githubusercontent.com/u/17094072?v=4)
+
+## 自己紹介
+
+**株式会社カケハシ**
+**生成AI研究開発チーム**
+**ソフトウェアエンジニア**
+**Nokogiri(@nkgrnkgr)**
 
 ---
 
-## 自己紹介・背景
+![bg right:60%](https://cdn.prod.website-files.com/612f503d75b76e04fe50e50f/615e8dbfa2ab7eceed6e4d38_l-mission_img01.jpg)
 
-### カケハシのAI在庫管理チーム
-- プロダクトの簡単な紹介
-- 薬局向けのAI在庫管理システムを開発
-- 薬剤師の業務効率化を支援
+## 株式会社カケハシ
 
-### なぜ状態管理の見直しが必要だったか
-- 複雑なフォームの状態管理
-- 相互依存する入力項目
-- パフォーマンスの最適化需要
+- 医療体験をしなやかに
+- 主に薬局向けの業務システムを提供
+- ヘルステックスタートアップ
+
+---
+
+## 今日話すこと
+
+1. useState以上の状態管理が必要なケース
+2. Zustandを使った設計・実装プラクティス
+3. 得られた知見・課題
+
+---
+
+## useState以上の状態管理が必要なケース
+
+### 1. フォームが動的に変わるケース
+```typescript
+// 職種選択によってフォームが変わる例
+const [userType, setUserType] = useState('');
+const [formFields, setFormFields] = useState([]);
+
+// 職種が変わるたびに表示フィールドが動的に変更
+useEffect(() => {
+  if (userType === 'doctor') {
+    setFormFields(['name', 'license', 'specialization']);
+  } else if (userType === 'pharmacist') {
+    setFormFields(['name', 'license', 'pharmacy']);
+  }
+}, [userType]);
+```
+
+### 2. フォーム初期値を動的に変更
+```typescript
+// 外部データに基づく初期値の設定
+const [userData, setUserData] = useState(null);
+const [formData, setFormData] = useState({});
+
+useEffect(() => {
+  // API から取得したデータで初期値を設定
+  if (userData) {
+    setFormData({
+      name: userData.name || '',
+      email: userData.email || '',
+      preferences: userData.preferences || {},
+    });
+  }
+}, [userData]);
+```
+
+### 3. 状態同士が相互に依存するケース
+```typescript
+// 複数の状態が相互に影響し合う例
+const [country, setCountry] = useState('');
+const [cities, setCities] = useState([]);
+const [selectedCity, setSelectedCity] = useState('');
+const [districts, setDistricts] = useState([]);
+
+// 国が変わると都市リストが変わる
+useEffect(() => {
+  if (country) {
+    fetchCities(country).then(setCities);
+    setSelectedCity(''); // 都市選択をリセット
+    setDistricts([]); // 区域リストもリセット
+  }
+}, [country]);
+
+// 都市が変わると区域リストが変わる
+useEffect(() => {
+  if (selectedCity) {
+    fetchDistricts(selectedCity).then(setDistricts);
+  }
+}, [selectedCity]);
+```
+
+### useState管理の課題
+- **副作用の連鎖**: useEffectが複数になり、依存関係が複雑
+- **状態の一貫性**: 複数の状態間で整合性を保つのが困難
+- **再レンダリング**: 状態変更時の不要な再レンダリングが発生
+- **テスト困難**: 複雑な状態変更ロジックのテストが困難
 
 ---
 
