@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:kakehashi-dev.hatenablog.com)"
+    ],
+    "deny": []
+  }
+}
