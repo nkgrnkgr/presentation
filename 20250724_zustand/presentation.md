@@ -37,7 +37,7 @@ footer: '2025/07/24 - Offers Tech Event'
 
 1. useState以上の状態管理が必要なケース
 2. Zustandを使った設計・実装プラクティス
-3. 得られた知見・課題
+3. 得られた知見
 
 ---
 
@@ -248,22 +248,6 @@ const errors = useStoreStockDialogStore(selectStoreStockInfoErrors);
 ## After
 
 ![bg left:100%](https://cdn-ak.f.st-hatena.com/images/fotolife/k/kakehashi_dev/20240905/20240905184236.gif)
-
----
-
-## 課題
-
-❌ **学習コスト**
-- 適切なセレクターの設計が必要
-- useShallow の使いどころの判断
-
-❌ **デバッグの複雑さ**
-- 状態の変更フローが分かりにくい場合がある
-- Redux DevTools の習熟が必要
-
-❌ **設計の一貫性**
-- チーム内でのパターンの統一が重要
-- 過度な最適化による複雑化のリスク
 
 ---
 
