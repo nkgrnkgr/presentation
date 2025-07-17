@@ -49,14 +49,15 @@ footer: '2025/07/24 - Offers Tech Event'
 
 ---
 
-![bg top:100%](https://cdn-ak.f.st-hatena.com/images/fotolife/k/kakehashi_dev/20240909/20240909094358.png)
-
----
 
 ## 具体的な事例：AI在庫の入庫ダイアログ
 
 - 動的に変わる初期値
 - 更新時に他の状態を更新する
+
+---
+
+![bg top:100%](https://cdn-ak.f.st-hatena.com/images/fotolife/k/kakehashi_dev/20240909/20240909094358.png)
 
 ---
 
