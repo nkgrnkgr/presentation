@@ -8,8 +8,7 @@ header: 'Zustandを用いた実践的状態管理'
 footer: '2025/07/24 - Offers Tech Event'
 ---
 
-# Zustandを用いた実践的状態管理
-## 複雑なフォームへの適用事例
+![bg top:100%](./images/1.png)
 
 ---
 
@@ -274,9 +273,7 @@ const errors = useStoreStockDialogStore(selectStoreStockInfoErrors);
 
 ### 株式会社カケハシで一緒に働きませんか？
 
-- **フロントエンドエンジニア** 積極採用中
-- **バックエンドエンジニア** 積極採用中
-- **機械学習エンジニア** 積極採用中
+ソフトウェアエンジニア募集中！
 
 ### 医療体験をしなやかにする技術開発
 
@@ -284,11 +281,4 @@ const errors = useStoreStockDialogStore(selectStoreStockInfoErrors);
 
 ---
 
-## ご清聴ありがとうございました
-
-### 質問・お話しできればと思います！
-
-**X(Twitter)**: @nkgrnkgr
-**GitHub**: @nkgrnkgr
-
-![bg right:40%](https://avatars.githubusercontent.com/u/17094072?v=4)
+![bg tp:100%](./images/2.png)
