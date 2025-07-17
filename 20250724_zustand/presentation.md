@@ -265,3 +265,30 @@ const errors = useStoreStockDialogStore(selectStoreStockInfoErrors);
 ❌ **設計の一貫性**
 - チーム内でのパターンの統一が重要
 - 過度な最適化による複雑化のリスク
+
+---
+
+## We are Hiring!
+
+![bg right:50%](https://cdn.prod.website-files.com/612f503d75b76e04fe50e50f/615e8dbfa2ab7eceed6e4d38_l-mission_img01.jpg)
+
+### 株式会社カケハシで一緒に働きませんか？
+
+- **フロントエンドエンジニア** 積極採用中
+- **バックエンドエンジニア** 積極採用中
+- **機械学習エンジニア** 積極採用中
+
+### 医療体験をしなやかにする技術開発
+
+**採用情報**: https://kakehashi-dev.com/recruit/
+
+---
+
+## ご清聴ありがとうございました
+
+### 質問・お話しできればと思います！
+
+**X(Twitter)**: @nkgrnkgr
+**GitHub**: @nkgrnkgr
+
+![bg right:40%](https://avatars.githubusercontent.com/u/17094072?v=4)
