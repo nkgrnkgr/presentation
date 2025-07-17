@@ -44,7 +44,7 @@ footer: '2025/07/24 - Offers Tech Event'
 
 ## useState以上の状態管理が必要なケース
 
-- 複雑な状態間の依存関係
+- 状態間の依存
 - 散在する状態更新ロジック
 - 頻繁な再描画によるパフォーマンス問題
 
@@ -54,7 +54,7 @@ footer: '2025/07/24 - Offers Tech Event'
 
 ---
 
-## 具体的な課題：AI在庫ダイアログ
+## 具体的な事例：AI在庫の入庫ダイアログ
 
 - 動的に変わる初期値
 - 更新時に他の状態を更新する
@@ -76,23 +76,27 @@ footer: '2025/07/24 - Offers Tech Event'
 ### 1. Actions に状態更新ロジックを集約する
 
 ```typescript
-const useStoreStockDialogStore = create<StoreStockDialogStore>()(
-  immer((set) => ({
-    actions: {
-      updateStoreStockReason: (reason) => {
-        set((state) => {
-          // プライマリ状態の更新
-          state.storeStockInfoFormValues.storeStockReason = reason;
-
+const useStoreStockDialogStore = create<StoreStockDialogStore>()((set) => ({
+  actions: {
+    updateStoreStockReason: (reason) => {
+      set((state) => ({
+        ...state,
+        // プライマリ状態の更新
+        storeStockInfoFormValues: {
+          ...state.storeStockInfoFormValues,
+          storeStockReason: reason,
           // 他の状態への副作用
-          state.storeStockInfoFormValues.counterPartyId = INITIAL_FORM_VALUES.counterPartyId;
-          state.storeStockInfoFormValues.counterPartyName = INITIAL_FORM_VALUES.counterPartyName;
-          state.stockOperationConfig.counterParty = null;
-        });
-      },
+          counterPartyId: INITIAL_FORM_VALUES.counterPartyId,
+          counterPartyName: INITIAL_FORM_VALUES.counterPartyName,
+        },
+        stockOperationConfig: {
+          ...state.stockOperationConfig,
+          counterParty: null,
+        },
+      }));
     },
-  }))
-);
+  },
+}));
 ```
 
 ---
@@ -109,8 +113,8 @@ const feeAmount = useStoreStockDialogStore(selectFeeAmount);
 ```
 
 - 状態の参照を一箇所に集約
-- 再描画の最適化
-- 型安全性の向上
+- Stateのデータ構造を変えてもコンポーネント側に影響を出さない
+- 純粋関数なのでテストしやすい
 
 ---
 
@@ -132,20 +136,22 @@ function MedicineList() {
 }
 ```
 
-- 配列の内容が変わらなければ再描画を防ぐ
-- パフォーマンスの向上
+- 配列の内容が変わらなければ再描画を防ぐ。パフォーマンスの向上
+- `createSelector` でも代替可能
 
 ---
 
 ### 4. 末端コンポーネントでの状態参照
 
 ```typescript
-function MedicineListItem({ medicineId }: { medicineId: string }) {
-  const medicine = useStoreStockDialogStore(
-    (state) => state.medicineInfoList.find(m => m.medicineId === medicineId)
-  );
-  
-  return <div>{medicine?.name}</div>;
+function MedicinePrice() {
+  const medicinePrice = useStoreStockDialogStore(selectMedicinePrice);
+  return (
+    <input 
+      type="text" 
+      value={medicine.price} 
+    />
+  )
 }
 ```
 
@@ -160,11 +166,9 @@ function MedicineListItem({ medicineId }: { medicineId: string }) {
 // StoreProvider.tsx
 export const StoreProvider = ({ children }: { children: ReactNode }) => {
   const storeRef = useRef<StoreApi<StoreStockDialogStore>>();
-  
   if (!storeRef.current) {
     storeRef.current = createStoreStockDialogStore();
   }
-  
   return (
     <StoreContext.Provider value={storeRef.current}>
       {children}
@@ -173,8 +177,9 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
 };
 ```
 
+- [Initialize state with props](https://zustand.docs.pmnd.rs/guides/initialize-state-with-props)
 - React コンポーネントのライフサイクルと連動
-- メモリリークの防止
+- Stateの破棄漏れを防ぐ
 
 ---
 
@@ -219,34 +224,7 @@ const errors = useStoreStockDialogStore(selectStoreStockInfoErrors);
 
 ---
 
-## 効果：実装による改善
-
-### 1. パフォーマンス向上
-
-- **Before**: 20回以上の再レンダリング
-- **After**: 5回程度の再レンダリング
-
-### 2. コードの見通しが良くなった
-
-- 状態更新ロジックが actions に集約
-- 散在していた状態管理コードが整理
-- 型安全なセレクターによる一貫した状態参照
-
-### 3. 機能拡張に強くなった
-
-- 新しい状態の追加が容易
-- 既存の状態との依存関係を明確に表現
-- バリデーションルールの追加・変更が簡単
-
----
-
-![bg left:100%](https://cdn-ak.f.st-hatena.com/images/fotolife/k/kakehashi_dev/20240905/20240905184236.gif)
-
----
-
-## 得られた知見と課題
-
-### 得られた知見
+## 得られた知見
 
 ✅ **パフォーマンス向上**
 - 再レンダリング回数の大幅削減
@@ -262,7 +240,19 @@ const errors = useStoreStockDialogStore(selectStoreStockInfoErrors);
 
 ---
 
-### 課題
+## Before
+
+![bg left:100%](https://cdn-ak.f.st-hatena.com/images/fotolife/k/kakehashi_dev/20240905/20240905183836.gif)
+
+---
+
+## After
+
+![bg left:100%](https://cdn-ak.f.st-hatena.com/images/fotolife/k/kakehashi_dev/20240905/20240905184236.gif)
+
+---
+
+## 課題
 
 ❌ **学習コスト**
 - 適切なセレクターの設計が必要
@@ -275,5 +265,3 @@ const errors = useStoreStockDialogStore(selectStoreStockInfoErrors);
 ❌ **設計の一貫性**
 - チーム内でのパターンの統一が重要
 - 過度な最適化による複雑化のリスク
-
-
