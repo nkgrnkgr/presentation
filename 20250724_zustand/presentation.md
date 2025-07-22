@@ -224,6 +224,8 @@ const useStore = create<Store>()(
 - 再レンダリング回数の大幅削減
 - 複雑な状態管理でもスムーズな動作
 
+**詳細記事**: https://kakehashi-dev.hatenablog.com/entry/2024/09/10/110000
+
 ---
 
 ## Before
