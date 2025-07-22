@@ -8,6 +8,9 @@ header: 'Zustandを用いた実践的状態管理'
 footer: '2025/07/24 - Offers Tech Event'
 ---
 
+<!-- header: "" -->
+<!-- footer: "" -->
+
 ![bg top:100%](./images/1.png)
 
 ---
@@ -37,7 +40,7 @@ footer: '2025/07/24 - Offers Tech Event'
 
 1. useState以上の状態管理が必要なケース
 2. Zustandを使った設計・実装プラクティス
-3. 得られた知見
+3. まとめ
 
 ## 話さないこと
 
@@ -210,26 +213,7 @@ const useStore = create<Store>()(
 
 ---
 
-### 7. Zod と組み合わせたバリデーション
-
-```typescript
-const selectStoreStockInfoErrors = (state: StoreStockDialogStore) => {
-  const result = storeStockInfoFormSchema.safeParse(
-    state.storeStockInfoFormValues
-  );
-  return result.success ? null : result.error.flatten();
-};
-
-// Component
-const errors = useStoreStockDialogStore(selectStoreStockInfoErrors);
-```
-
-- 型安全なバリデーション
-- リアルタイムエラー表示
-
----
-
-## 得られた知見
+## まとめ
 
 ✅ **開発体験の向上**
 - コードの可読性と保守性の向上
@@ -267,5 +251,8 @@ const errors = useStoreStockDialogStore(selectStoreStockInfoErrors);
 **採用情報**: https://kakehashi-dev.com/recruit/
 
 ---
+
+<!-- header: "" -->
+<!-- footer: "" -->
 
 ![bg tp:100%](./images/2.png)
