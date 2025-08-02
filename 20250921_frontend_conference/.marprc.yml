@@ -1,0 +1,4 @@
+theme: default
+html: true
+pdf: true
+allowLocalFiles: true
