@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "marp slides.md --watch",
-    "build": "marp slides.md -o slides.html",
-    "build:pdf": "marp slides.md -o slides.pdf",
-    "build:pptx": "marp slides.md -o slides.pptx"
+    "dev": "marp slide.md --watch",
+    "build": "marp slide.md -o slide.html",
+    "build:pdf": "marp slide.md -o slide.pdf",
+    "build:pptx": "marp slide.md -o slide.pptx"
   },
   "keywords": [],
   "author": "",
