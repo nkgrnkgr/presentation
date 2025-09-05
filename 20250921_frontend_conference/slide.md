@@ -98,14 +98,14 @@ author: "Nokogiri (@nkgrnkgr)"
 
 ---
 
-### アーキテクチャ
+### AngularとReactアプリを共存させるアーキテクチャ
 <!-- ここは後で図を入れる -->
 - `vite` でビルドした Reactアプリの `JS` と `CSS` を事前にホスティング
 - Angular のアプリにあらかじめ `<div id="react-component" />` を用意し、`JS`、`CSS` ファイルをロードしてレンダリング
 
 ---
 
-### iframe も選択肢にあったか？
+#### iframe も選択肢にあったか？
 - ユーザーから見てMusubiとPharmacyAIは一つのアプリ
 - 認証機能を別で作る必要はなく、むしろMusubi側に任せたい
 - ロードされるJSファイルにバージョン管理も不要だった
@@ -119,19 +119,60 @@ author: "Nokogiri (@nkgrnkgr)"
 
 ---
 
-### アプリケーション間の通信
-- アプリケーション間の通信には `CustomEvent` を利用
+### `CustomEvent`を利用したアプリケーション間通信
 
 ---
 
-#### CustomEventの利用方法
-- 具体的なやりとりの一つをサンプルとして紹介
-- Angular（親）とReact（子）のアプリケーション間で相互に通信する方法
-- コンテキストの同期。Musubi側でページ遷移があった場合にPharmacyAI側もページ遷移に追従する。（逆のパターンも）
-- チーム間のインターフェースをそろえるための型定義
-- 認証トークンの有効期限切れチェック、通信時の再認証など
+#### 具体的な実装
+
+```tsx
+// 送信側
+const event = new CustomEvent("contextChanged", {
+  detail: {
+    payload: {
+      pharmacyId: "pharmacy-123",
+      patientId: "patient-456",
+      idToken: "token-789"
+    }
+  }
+});
+window.dispatchEvent(event);
+
+// 受信側
+window.addEventListener("contextChanged", (event) => {
+  const { pharmacyId, patientId, idToken } = event.detail.payload;
+  // ここで受け取ったデータをReact側の状態管理などに反映する
+  console.log("受信:", pharmacyId, patientId, idToken);
+  // 例: setContext({ pharmacyId, patientId, idToken });
+});
+```
 
 ---
+
+#### 相互に通信する方法
+
+```tsx
+...TDB
+```
+
+---
+
+#### コンテキストの同期（ページ遷移の追従）
+
+```tsx
+...TDB
+```
+
+---
+
+#### 認証トークンの有効期限切れチェック、通信時の再認証など
+
+```tsx
+...TDB
+```
+
+---
+
 
 ## 実際にマイクロフロントエンドを採用して出た課題
 
@@ -140,19 +181,21 @@ author: "Nokogiri (@nkgrnkgr)"
 ---
 
 ### 開発・デバッグ環境
-- MusubiとPharmacyAIのどちらで不具合が起きているかの切り分けが難しかった。
-- CustomEvent のやり取りのデバッグが難しく、イベントの流れを可視化するために**専用のChrome拡張機能を作成した**エピソードを話す。
-- Musubiのローカル開発環境を準備しなくても開発ができるように読み込むURLを差し替えるChrome拡張機能を作成した。
+
+- CustomEvent のやり取りのデバッグが難しく、イベントの流れを可視化するために専用のChrome拡張機能を作成
+- Musubiのローカル開発環境を準備しなくても開発ができるように読み込むURLを差し替える専用のChrome拡張機能を作成した。
 
 ---
 
 ### 実装の泥臭い対応
+
 - PharmacyAIが生成した薬歴をMusubi側に自動挿入する際、Musubi側の画面遷移に追いつけず、**3回までリトライする**という泥臭い実装になった。
 - コミュニケーションコストを減らすために、PharmacyAIチームが自らMusubi側のコードを修正し、PRを投げた経験を共有する。
 
 ---
 
 ### UIの複雑性
+
 - MusubiのグローバルなCSSがPharmacyAIに影響を与えたり、`z-index` の管理が複雑になったりした。
 
 ---
