@@ -103,12 +103,12 @@ author: "Nokogiri (@nkgrnkgr)"
 - `vite` でビルドした Reactアプリの `JS` と `CSS` を事前にホスティング
 - Angular のアプリにあらかじめ `<div id="react-component" />` を用意し、`JS`、`CSS` ファイルをロードしてレンダリング
 
----
+<!-- ---
 
 #### iframe も選択肢にあったか？
 - ユーザーから見てMusubiとPharmacyAIは一つのアプリ
 - 認証機能を別で作る必要はなく、むしろMusubi側に任せたい
-- ロードされるJSファイルにバージョン管理も不要だった
+- ロードされるJSファイルにバージョン管理も不要だった -->
 
 ---
 
