@@ -119,11 +119,9 @@ author: "Nokogiri (@nkgrnkgr)"
 
 ---
 
-### `CustomEvent`を利用したアプリケーション間通信
+### アプリケーション間通信
 
----
-
-#### 具体的な実装
+`CustomEvent`を利用した具体的な実装
 
 ```tsx
 // 送信側
@@ -141,43 +139,39 @@ window.dispatchEvent(event);
 // 受信側
 window.addEventListener("contextChanged", (event) => {
   const { pharmacyId, patientId, idToken } = event.detail.payload;
-  // ここで受け取ったデータをReact側の状態管理などに反映する
   console.log("受信:", pharmacyId, patientId, idToken);
-  // 例: setContext({ pharmacyId, patientId, idToken });
 });
 ```
 
 ---
 
-#### 相互に通信する方法
-
-```tsx
-...TDB
-```
-
----
-
-#### コンテキストの同期（ページ遷移の追従）
-
-```tsx
-...TDB
-```
-
----
-
-#### 認証トークンの有効期限切れチェック、通信時の再認証など
-
-```tsx
-...TDB
-```
-
----
-
-
 ## 実際にマイクロフロントエンドを採用して出た課題
 
 このアーキテクチャを採用したことで出てきた課題や、泥臭い対応などを紹介
 
+---
+
+### 相互に通信する方法
+
+```tsx
+...TDB
+```
+
+---
+
+### コンテキストの同期（ページ遷移の追従）
+
+```tsx
+...TDB
+```
+
+---
+
+### 認証トークンの有効期限切れチェック、通信時の再認証など
+
+```tsx
+...TDB
+```
 ---
 
 ### 開発・デバッグ環境
