@@ -163,23 +163,17 @@ window.addEventListener("contextChanged", (event) => {
 
 --- 
 
-#### 実装サンプル
-
 ```ts
 export const CustomEventName = {
   MusubiContextChanged: "musubi_context_changed",
-  PharmacyAiNavigationRequest: "pharmacy_ai_navigation_request",
 } as const;
 
 export type MusubiContextChangedPayload = {
-  pharmacyId: string | null;
   patientId: string | null;
-  idToken: string | null;
 }
 
 export type CustomEventMap = {
   [CustomEventName.MusubiContextChanged]: MusubiContextChangedPayload;
-  ...
 };
 ```
 
@@ -207,16 +201,31 @@ CustomEventは基本「投げっぱなし」。しかし送信側が「受信側
 
 ポイント: IDでリクエストと応答を対応づけ、投げっぱなしのCustomEventを「受領通知」で双方向化している。
 
+シーケンス図（受領通知フロー）
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant P as PharmacyAI (React)
+  participant M as Musubi (Angular)
+  P->>M: CustomEvent EVENT (id, payload)
+  M->>M: payloadを処理
+  M-->>P: CustomEvent musubi_ack_{id} (result)
+  alt 未応答
+    P->>P: タイムアウト(3s)でエラー
+  end
+```
+
 ---
 
-#### 送信側：実装例
+送信側：実装例
 
 ```ts
 const EVENT = "pharmacy_ai_counseling_record_posting";
 const ACK = (id: string) => `musubi_ack_${id}`;
 
-const emitPosting = (payload: any, timeout = 3000) =>
-  new Promise<any>((resolve, reject) => {
+const emitPosting = (payload: PostingPayload, timeout = 3000) =>
+  new Promise((resolve, reject) => {
     const id = crypto.randomUUID();
     const onAck = (e: Event) => resolve((e as CustomEvent).detail.payload);
     const timer = setTimeout(() => {
@@ -238,12 +247,14 @@ console.log(result); // => { status: "OK", message: "薬歴の転記が完了し
 
 ---
 
-#### 受信側：実装例
+受信側：実装例
 
 ```ts
 const EVENT = "pharmacy_ai_counseling_record_posting";
 window.addEventListener(EVENT, (e) => {
   const { id, payload } = (e as CustomEvent).detail;
+  // payload に応じた処理
+
   const result = { status: "OK", message: "薬歴の転記が完了しました" };
   window.dispatchEvent(new CustomEvent(`musubi_ack_${id}`, { detail: { payload: result } }));
 });
