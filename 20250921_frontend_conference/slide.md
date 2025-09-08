@@ -164,7 +164,7 @@ CustomEventは基本「投げっぱなし」。しかし送信側が「受信側
 
 ---
 
-#### PharmacyAI側：実装例
+#### 送信側：実装例
 
 ```ts
 const EVENT = "pharmacy_ai_counseling_record_posting";
@@ -193,7 +193,7 @@ console.log(result); // => { status: "OK", message: "薬歴の転記が完了し
 
 ---
 
-#### Musubi側：実装例
+#### 受信側：実装例
 
 ```ts
 const EVENT = "pharmacy_ai_counseling_record_posting";
