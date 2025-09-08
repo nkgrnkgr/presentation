@@ -154,7 +154,7 @@ window.addEventListener("contextChanged", (event) => {
 
 ### CustomEventを「受領通知」で双方向化する
 
-CustomEventは基本「投げっぱなし」。しかし送信側が「受信側が受け付けたか」を知りたい場面がある
+CustomEventは基本「投げっぱなし」。しかし送信側が「受信側が受け付けたか」を知りたい場面がある。例えばリトライするとか
 
 - 送信: **送信側**が一意なid付きでCustomEventを発火する。
 - 受信/処理: **受信側**がそのイベントを受け取り、転記を実行して結果を作る。
@@ -206,10 +206,40 @@ window.addEventListener(EVENT, (e) => {
 
 ---
 
-### コンテキストの同期（ページ遷移の追従）
+### ページ遷移を相互追従
 
-```tsx
-...TDB
+Musubi 側からコンテキスト（患者情報）の変更のCustomEventが送信される。逆にPharmacyAI側でページ遷移を要求したい場合もある。
+
+#### MusubiからPharmacyAIへ
+- Musubiの画面遷移や患者切替の通知を受け取り、PharmacyAI側も状態・画面を合わせる。
+- ただし「すでに同じ患者なら何もしない」ことで、PharmacyAI発の遷移を上書きしない。
+
+#### PharmacyAIからMusubiへ
+- PharmacyAIが遷移したいときは「遷移リクエスト」を送る。同時にPharmacyAI側も先に自分の画面を目的地へ移動しておく。
+
+---
+
+#### 実装サンプル
+
+Musubi→PharmacyAI（通知を受けて追従。自分が先に同じ患者へ遷移していたら無視）
+
+```ts
+window.addEventListener("musubi_context_changed", (e) => {
+  const { patientId } = (e as CustomEvent<{ patientId: string | null }>).detail;
+  if (getCurrentPatientId() === patientId) return; // 自分発の遷移と競合しないように無視
+  navigateTo(patientId ? `/patients/${patientId}` : "/");
+});
+```
+
+PharmacyAI→Musubi（通知からの遷移。先に自分も遷移しておき、後続のMusubi通知は一致で無視される）
+
+```ts
+const navigateAndRequest = (patientId: string) => {
+  navigateTo(`/patients/${patientId}`); // 先に自分を目的地へ
+  window.dispatchEvent(
+    new CustomEvent("pharmacy_ai_navigation_request", { detail: { patientId } })
+  );
+}
 ```
 
 ---
