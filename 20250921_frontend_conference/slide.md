@@ -197,7 +197,7 @@ CustomEventは基本「投げっぱなし」。しかし送信側が「受信側
 - **受信側**同じidを含む応答イベント（受領通知）を `musubi_ack_${id}` で返す。
 - **送信側**はそのackを待ち受け、結果（OK/NGとメッセージ）を受け取ってUIやログに反映する（未応答はタイムアウト）。
 
-ポイント: 相関IDでリクエストと応答を対応づけ、投げっぱなしのCustomEventを「受領通知」で双方向化している。
+ポイント: IDでリクエストと応答を対応づけ、投げっぱなしのCustomEventを「受領通知」で双方向化している。
 
 ---
 
@@ -247,11 +247,11 @@ window.addEventListener(EVENT, (e) => {
 
 Musubi 側からコンテキスト（患者情報）の変更のCustomEventが送信される。逆にPharmacyAI側でページ遷移を要求したい場合もある。
 
-#### MusubiからPharmacyAIへ
+MusubiからPharmacyAIへ
 - Musubiの画面遷移や患者切替の通知を受け取り、PharmacyAI側も状態・画面を合わせる。
 - ただし「すでに同じ患者なら何もしない」ことで、PharmacyAI発の遷移を上書きしない。
 
-#### PharmacyAIからMusubiへ
+PharmacyAIからMusubiへ
 - PharmacyAIが遷移したいときは「遷移リクエスト」を送る。同時にPharmacyAI側も先に自分の画面を目的地へ移動しておく。
 
 ---
@@ -272,7 +272,7 @@ PharmacyAI→Musubi（通知からの遷移。先に自分も遷移しておき�
 
 ```ts
 const navigateAndRequest = (patientId: string) => {
-  navigateTo(`/patients/${patientId}`); // 先に自分を目的地へ
+  navigateTo(`/patients/${patientId}`); // 事前に自分が画面遷移
   window.dispatchEvent(
     new CustomEvent("pharmacy_ai_navigation_request", { detail: { patientId } })
   );
@@ -281,19 +281,38 @@ const navigateAndRequest = (patientId: string) => {
 
 ---
 
+### CustomEventのデバッグ
 
-### 開発・デバッグ環境
+CustomEventのやりとりはChromeのネットワークタブのようにどのようなReq/Resがあるかを見ることが難しい。
+CustomEventの流れを可視化する **Chrome拡張** を作成してイベントの流れを可視化した。
 
-- CustomEvent のやり取りのデバッグが難しく、イベントの流れを可視化するために専用のChrome拡張機能を作成
-- Musubiのローカル開発環境を準備しなくても開発ができるように読み込むURLを差し替える専用のChrome拡張機能を作成した。
+<!-- ここは拡張機能のスクショ -->
+
+---
+
+### ローカル開発環境①：Musubiスタブ画面
+
+- Musubiのスタブ画面を準備し、PharmacyAIの `JS`、`CSS` ファイルを読み込む
+- スタブ画面からCustomEventを発火してPharmacyAIの動作確認をする
+
+本物のMusubiの画面ではないためある程度開発はできるが、ちゃんとした動作確認を行うためには一度デプロイしてMusubiと結合して動作できる環境で確認する必要があった。
+
+--- 
+
+### ローカル開発環境②：Musubiが読み込みJSとCSSをChrome拡張で差し替える
+
+- `chrome.declarativeNetRequest` というAPIを使って、Musubiが読み込むJSとCSSファイルの`URL`をランタイムで動的に差し替える。
+- ローカルで起動したURLに差し替えることで、Musubiはdev環境、PharmacyAIはローカル環境のファイルという動かし方が可能になった
+
+<!-- ここは拡張機能のスクショ -->
 
 ---
 
 ### その他の泥臭い工夫
 
-- PharmacyAIが生成した薬歴をMusubi側に自動挿入する際、Musubi側の画面遷移に追いつけず、**3回までリトライする**という泥臭い実装になった。
-- コミュニケーションコストを減らすために、PharmacyAIチームが自らMusubi側のコードを修正し、PRを投げた経験を共有する。
-- MusubiのグローバルなCSSがPharmacyAIに影響を与えたり、`z-index` の管理が複雑になったりした。
+- PharmacyAIが生成した薬歴をMusubi側に自動挿入する際、Musubi側の画面遷移に追いつけず、**3回までリトライする**。二つのアプリケーションの状態の完全な同期は難しく一部でネットワーク通信のような振る舞いが必要。
+- コミュニケーションコストを減らすために、PharmacyAIチームが自らMusubi側のコードを修正し、PRを投げる。
+- MusubiのグローバルCSSのスタイルがPharmacyAIに影響を与えたり、Musubiの `z-index` を考慮して実装する必要があった。
 
 ---
 
