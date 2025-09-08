@@ -37,7 +37,7 @@ author: "Nokogiri (@nkgrnkgr)"
 ---
 
 ### 市場の状況
-- Musubiは今では市場の**20%**の薬局で利用されている。
+- Musubiは今では市場の **20%** の薬局で利用されている。
 - ただしリリース後、後発の競合プロダクトが登場し、以前ほどの優位性はない。
 - 生成AI関連機能では、他社に後れを取っている状態。
 - カケハシとしては、ユーザーにとって価値のある生成AIプロダクトをMusubiに搭載して優位性を取り戻したい。
@@ -126,7 +126,7 @@ Angular×Reactの共存 / Musubi非依存UI / アプリ間通信
 
 ### アプリケーション間通信
 
-`CustomEvent`を利用した具体的な実装
+`CustomEvent` を利用した疎結合な通信
 
 ```tsx
 // 送信側
@@ -200,21 +200,6 @@ CustomEventは基本「投げっぱなし」。しかし送信側が「受信側
 - **送信側**: ackを待ち受け、結果（OK/NGとメッセージ）を受け取ってUIやログに反映（未応答はタイムアウト）
 
 ポイント: IDでリクエストと応答を対応づけ、投げっぱなしのCustomEventを「受領通知」で双方向化している。
-
-シーケンス図（受領通知フロー）
-
-```mermaid
-sequenceDiagram
-  autonumber
-  participant P as PharmacyAI (React)
-  participant M as Musubi (Angular)
-  P->>M: CustomEvent EVENT (id, payload)
-  M->>M: payloadを処理
-  M-->>P: CustomEvent musubi_ack_{id} (result)
-  alt 未応答
-    P->>P: タイムアウト(3s)でエラー
-  end
-```
 
 ---
 
