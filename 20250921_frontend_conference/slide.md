@@ -152,6 +152,42 @@ window.addEventListener("contextChanged", (event) => {
 
 ---
 
+### 型定義で通信仕様を固める
+
+- 発火されるCustomEventはどのようなキー名とペイロードになるのかチーム間で合意する必要がある。
+- TypeScriptの `Mapped Type` を使って方安全にCustomEventを管理する。
+
+--- 
+
+#### 実装サンプル
+
+```ts
+export const CustomEventName = {
+  MusubiContextChanged: "musubi_context_changed",
+  PharmacyAiNavigationRequest: "pharmacy_ai_navigation_request",
+} as const;
+
+export type MusubiContextChangedPayload = { pharmacyId: null; patientId: null; idToken: null }
+
+export type CustomEventMap = {
+  [CustomEventName.MusubiContextChanged]: MusubiContextChangedPayload;
+  ...
+};
+```
+
+```ts
+export const sendCustomEvent = <K extends keyof CustomEventMap>(
+  name: K,
+  payload: CustomEventMap[K],
+) => {
+  const id = crypto.randomUUID();
+  window.dispatchEvent(new CustomEvent(name, { detail: { id, kind: name, payload } }));
+  return id;
+};
+```
+
+---
+
 ### CustomEventを「受領通知」で双方向化する
 
 CustomEventは基本「投げっぱなし」。しかし送信側が「受信側が受け付けたか」を知りたい場面がある。例えばリトライするとか
@@ -244,12 +280,6 @@ const navigateAndRequest = (patientId: string) => {
 
 ---
 
-### 認証トークンの有効期限切れチェック、通信時の再認証など
-
-```tsx
-...TDB
-```
----
 
 ### 開発・デバッグ環境
 
@@ -258,15 +288,10 @@ const navigateAndRequest = (patientId: string) => {
 
 ---
 
-### 実装の泥臭い対応
+### その他の泥臭い工夫
 
 - PharmacyAIが生成した薬歴をMusubi側に自動挿入する際、Musubi側の画面遷移に追いつけず、**3回までリトライする**という泥臭い実装になった。
 - コミュニケーションコストを減らすために、PharmacyAIチームが自らMusubi側のコードを修正し、PRを投げた経験を共有する。
-
----
-
-### UIの複雑性
-
 - MusubiのグローバルなCSSがPharmacyAIに影響を与えたり、`z-index` の管理が複雑になったりした。
 
 ---
