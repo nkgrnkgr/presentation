@@ -94,7 +94,8 @@ author: "Nokogiri (@nkgrnkgr)"
 
 --- -->
 
-## マイクロフロントエンドの具体的な技術
+## 設計編：マイクロフロントエンドを支える技術
+Angular×Reactの共存 / Musubi非依存UI / アプリ間通信
 
 ---
 
@@ -145,16 +146,62 @@ window.addEventListener("contextChanged", (event) => {
 
 ---
 
-## 実際にマイクロフロントエンドを採用して出た課題
+## 実践編：導入して見えた課題と工夫
 
 このアーキテクチャを採用したことで出てきた課題や、泥臭い対応などを紹介
 
 ---
 
-### 相互に通信する方法
+### CustomEventを「受領通知」で双方向化する
 
-```tsx
-...TDB
+CustomEventは基本「投げっぱなし」。しかし送信側が「受信側が受け付けたか」を知りたい場面がある
+
+- 送信: PharmacyAIが一意なid付きでCustomEventを発火する。
+- 受信/処理: Musubiがそのイベントを受け取り、転記を実行して結果を作る。
+- 応答: 同じidを含む応答イベント（受領通知）をmusubi_ack_${id}で返す。
+- 待機/取得: PharmacyAIはそのackを待ち受け、結果（OK/NGとメッセージ）を受け取ってUIやログに反映する（未応答はタイムアウト）。
+- ポイント: 相関IDでリクエストと応答を対応づけ、投げっぱなしのCustomEventを「受領通知」で双方向化している。
+
+---
+
+#### PharmacyAI側：実装例
+
+```ts
+const EVENT = "pharmacy_ai_counseling_record_posting";
+const ACK = (id: string) => `musubi_ack_${id}`;
+
+const emitPosting = (payload: any, timeout = 3000) =>
+  new Promise<any>((resolve, reject) => {
+    const id = crypto.randomUUID();
+    const onAck = (e: Event) => resolve((e as CustomEvent).detail.payload);
+    const timer = setTimeout(() => {
+      window.removeEventListener(ACK(id), onAck);
+      reject(new Error("timeout"));
+    }, timeout);
+
+    window.addEventListener(ACK(id), (e) => {
+      clearTimeout(timer);
+      onAck(e);
+    }, { once: true });
+
+    window.dispatchEvent(new CustomEvent(EVENT, { detail: { id, payload } }));
+  });
+
+const result = await emitPosting({ prescriptionId: "1", soaps: [] });
+console.log(result); // => { status: "OK", message: "薬歴の転記が完了しました" }
+```
+
+---
+
+#### Musubi側：実装例
+
+```ts
+const EVENT = "pharmacy_ai_counseling_record_posting";
+window.addEventListener(EVENT, (e) => {
+  const { id, payload } = (e as CustomEvent).detail;
+  const result = { status: "OK", message: "薬歴の転記が完了しました" };
+  window.dispatchEvent(new CustomEvent(`musubi_ack_${id}`, { detail: { payload: result } }));
+});
 ```
 
 ---
